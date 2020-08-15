@@ -1,0 +1,29 @@
+         <div class="method" id="%{cube.id}">
+            <h3>%{cube.name}</h3>
+            <p>%{cube.description}</p>
+            <ul class="details-list">
+                <li>Table:</li>
+                <li>%{cube.table}</li>
+            </ul>
+            <ul class="details-list">
+                <li>Identifier:</li>
+                <li>%{cube.id}</li>
+            </ul>
+            <br>
+            <div class="row margin-0 list-header hidden-sm hidden-xs">
+               <div class="col-md-3">
+                  <div class="header">Name</div>
+               </div>
+               <div class="col-md-2">
+                  <div class="header">Type</div>
+               </div>
+               <div class="col-md-3">
+                  <div class="header">DB Column</div>
+               </div>
+               <div class="col-md-4">
+                  <div class="header">Description</div>
+               </div>
+            </div>
+            %{cube.dimensions}
+            %{cube.measures}
+         </div>
