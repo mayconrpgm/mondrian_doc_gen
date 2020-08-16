@@ -8,7 +8,7 @@ import os
 
 def generate_html_cube(cube_id, cube_table, cube_name, cube_description, cube_dimensions, cube_measures):
     base_html = ''
-    with open("documentation_cube_header.html", "r") as t:
+    with open("templates_html/documentation_cube_header.html", "r") as t:
         base_html = t.read()
         base_html = base_html.replace('%{cube.id}', cube_id)
         base_html = base_html.replace('%{cube.table}', cube_table)
@@ -22,7 +22,7 @@ def generate_html_cube(cube_id, cube_table, cube_name, cube_description, cube_di
 
 def generate_html_cube_level(level_name, level_type, level_description, level_column):
     base_html = ''
-    with open("documentation_cube_levels.html", "r") as t:
+    with open("templates_html/documentation_cube_levels.html", "r") as t:
         base_html = t.read()
         base_html = base_html.replace('%{level.name}', level_name)
         base_html = base_html.replace('%{level.type}', level_type)
@@ -35,7 +35,7 @@ def generate_html_cube_level(level_name, level_type, level_description, level_co
 
 def generate_html_dim_level(level_name, level_type, level_description, level_column):
     base_html = ''
-    with open("documentation_dim_levels.html", "r") as t:
+    with open("templates_html/documentation_dim_levels.html", "r") as t:
         base_html = t.read()
         base_html = base_html.replace('%{level.name}', level_name)
         base_html = base_html.replace('%{level.type}', level_type)
@@ -48,7 +48,7 @@ def generate_html_dim_level(level_name, level_type, level_description, level_col
 
 def generate_html_dimension(dim_id, dim_table, dim_name, dim_description, dim_levels):
     base_html = ''
-    with open("documentation_dim_header.html", "r") as t:
+    with open("templates_html/documentation_dim_header.html", "r") as t:
         base_html = t.read()
         base_html = base_html.replace('%{dimension.id}', dim_id)
         base_html = base_html.replace('%{dimension.table}', dim_table)
@@ -62,7 +62,7 @@ def generate_html_dimension(dim_id, dim_table, dim_name, dim_description, dim_le
 
 def generate_html(schema_name, schema_description, num_cubes, cube_body, num_dimensions, dim_body):
     base_html = ''
-    with open("documentation_wrapper.html", "r") as t:
+    with open("templates_html/documentation_wrapper.html", "r") as t:
         base_html = t.read()
         base_html = base_html.replace('%{schema.name}', schema_name)
         base_html = base_html.replace(
