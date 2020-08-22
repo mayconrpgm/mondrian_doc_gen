@@ -6,12 +6,13 @@ import sys
 import os
 
 
-def generate_html_cube(cube_id, cube_table, cube_name, cube_description, cube_dimensions, cube_measures):
+def generate_html_cube(cube_id, cube_table, cube_schema, cube_name, cube_description, cube_dimensions, cube_measures):
     base_html = ''
     with open("templates_html/documentation_cube_header.html", "r") as t:
         base_html = t.read()
         base_html = base_html.replace('%{cube.id}', cube_id)
         base_html = base_html.replace('%{cube.table}', cube_table)
+        base_html = base_html.replace('%{cube.schema}', cube_schema)
         base_html = base_html.replace('%{cube.name}', cube_name)
         base_html = base_html.replace('%{cube.description}', cube_description)
         base_html = base_html.replace('%{cube.dimensions}', cube_dimensions)
@@ -46,12 +47,13 @@ def generate_html_dim_level(level_name, level_type, level_description, level_col
     return base_html
 
 
-def generate_html_dimension(dim_id, dim_table, dim_name, dim_description, dim_levels):
+def generate_html_dimension(dim_id, dim_table, dim_schema, dim_name, dim_description, dim_levels):
     base_html = ''
     with open("templates_html/documentation_dim_header.html", "r") as t:
         base_html = t.read()
         base_html = base_html.replace('%{dimension.id}', dim_id)
         base_html = base_html.replace('%{dimension.table}', dim_table)
+        base_html = base_html.replace('%{dimension.schema}', dim_schema)
         base_html = base_html.replace('%{dimension.name}', dim_name)
         base_html = base_html.replace(
             '%{dimension.description}', dim_description)
@@ -97,6 +99,7 @@ def parse_file(file_name, output_dir):
         dim_caption = dim.get('caption', '')
         dim_description = dim.get('description', '')
         dim_table = dim.find('Hierarchy/Table').get('name', 'Undefined')
+        dim_schema = dim.find('Hierarchy/Table').get('schema', 'N/A')
 
         for lvl in dim.iter("Level"):
             name = lvl.get('name')
@@ -113,7 +116,7 @@ def parse_file(file_name, output_dir):
         dimensions_dict[dim_name] = {
             'table': dim_table, 'caption': dim_caption, 'description': dim_description, 'usage': ''}
         dimensions_html += generate_html_dimension(
-            dim_name, dim_table, dim_caption if dim_caption != '' else dim_name, dim_description, dimension_level_html)
+            dim_name, dim_table, dim_schema, dim_caption if dim_caption != '' else dim_name, dim_description, dimension_level_html)
 
     # HANDLING DEGENERATED DIMENSIONS
     for dim in sorted(document.xpath("/Schema/Cube/Dimension"), key=lambda x: x.get('caption') if x.get('caption', '') != '' else x.get('name')):
@@ -122,6 +125,7 @@ def parse_file(file_name, output_dir):
         dim_caption = dim.get('caption', '')
         dim_description = dim.get('description', '')
         dim_table = dim.find('../Table').get('name', 'Undefined')
+        dim_schema = dim.find('../Table').get('schema', 'N/A')
         dim_name = dim.get('name')
         dim_identifier = dim_table + '.' + dim_name
 
@@ -139,7 +143,7 @@ def parse_file(file_name, output_dir):
 
         dimensions_dict[dim_identifier] = {
             'table': dim_table, 'caption': dim_caption, 'description': dim_description, 'usage': ''}
-        dimensions_html += generate_html_dimension(dim_identifier, dim_table, dim_caption if dim_caption !=
+        dimensions_html += generate_html_dimension(dim_identifier, dim_table, dim_schema, dim_caption if dim_caption !=
                                                    '' else dim_name, dim_description, dimension_level_html)
 
     # HANDLING CUBES
@@ -151,6 +155,7 @@ def parse_file(file_name, output_dir):
         cube_caption = cube.get('caption', '')
         cube_description = cube.get('description', '')
         cube_table = cube.find('Table').get('name', 'Undefined')
+        cube_schema = cube.find('Table').get('schema', 'N/A')
 
         for dim_usage in cube.iter("DimensionUsage"):
             name = dim_usage.get('name')
@@ -214,7 +219,7 @@ def parse_file(file_name, output_dir):
             cube_measures_html += generate_html_cube_level(
                 caption if caption != '' else name, type, description, column)
 
-        cubes_html += generate_html_cube(cube_name, cube_table, cube_caption if cube_caption !=
+        cubes_html += generate_html_cube(cube_name, cube_table, cube_schema, cube_caption if cube_caption !=
                                          '' else cube_name, cube_description, cube_dimensions_html, cube_measures_html)
         num_cubes += 1
 

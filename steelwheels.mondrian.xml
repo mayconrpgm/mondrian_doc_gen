@@ -48,6 +48,14 @@
     <Cube name="SteelWheelsSales" cache="true" enabled="true">
         <Table name="orderfact">
         </Table>
+        <DimensionUsage source="Time" name="Time" visible="true" foreignKey="TIME_ID">
+        </DimensionUsage>
+        <DimensionUsage source="Markets" name="Markets" visible="true" foreignKey="CUSTOMERNUMBER">
+        </DimensionUsage>
+        <DimensionUsage source="Customers" name="Customers" visible="true" foreignKey="CUSTOMERNUMBER">
+        </DimensionUsage>
+        <DimensionUsage source="Product" name="Product" visible="true" foreignKey="PRODUCTCODE">
+        </DimensionUsage>
         <Dimension foreignKey="STATUS" name="Order Status">
             <Hierarchy hasAll="true" allMemberName="All Status Types" primaryKey="STATUS">
                 <Level name="Type" column="STATUS" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
