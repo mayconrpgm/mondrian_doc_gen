@@ -114,7 +114,7 @@ class Cube(object):
 
         for dim_usage in self.dimensions_usage:
             dim = dim_usage.dimension
-            dim_alias = self.__build_table_alias(dim.table)
+            dim_alias = self.__build_table_alias(dim.table) if not dim.is_degenerated else fact_alias
 
             if not dim.is_degenerated:
                 sql_string_join += '\nJOIN\n    {} {} ON \n        {}.{} = {}.{}'.format(dim.table_full_name, dim_alias, dim_alias, dim.primary_key.lower(), fact_alias, dim_usage.foreign_key.lower())
@@ -131,7 +131,7 @@ class Cube(object):
                     else 'count(distinct {alias}.{column}) AS {column}'
                 sql_string_columns.append(str_agg_format.format(alias=fact_alias, column=measure.column.lower()))
 
-        sql_string_group_order_by = '\nGROUP BY {range}\nORDER BY {range}'.format(range=', '.join([str(i) for i in range(1, group_by_count)]))
+        sql_string_group_order_by = '\nGROUP BY {range}\nORDER BY {range}'.format(range=', '.join([str(i) for i in range(1, group_by_count + 1)])) if group_by_count > 0 else ''
         return 'SELECT\n    {}\n{}{}\n{}\n;'.format('\n    , '.join(sql_string_columns), sql_string_from, sql_string_join, sql_string_group_order_by)
 
 class CalculatedMeasure(object):
