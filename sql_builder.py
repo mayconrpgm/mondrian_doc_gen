@@ -27,17 +27,6 @@ class Dimension(object):
     @property
     def table_full_name(self):
         return self.schema + '.' + self.table if self.schema != '' else self.table
-
-    def __init__(self) -> None:
-        id = ''
-        name = ''
-        table = ''
-        primary_key = ''
-        schema = ''
-        caption = ''
-        description = ''
-        is_degenerated = False
-        levels: list[DimensionLevel] = None
     
     def add_level(self, level: DimensionLevel):
         if self.levels is None:
@@ -274,22 +263,21 @@ def main():
     parser.add_argument('--cube', '-c', type=str,
                     help='The name of the cube that will be used to generate the SELECT statement.', required=False)
 
-    # try:
-    args = parser.parse_args()
-    print(args)
+    try:
+        args = parser.parse_args()
+        print(args)
 
-    schema_file = 'redshift_claroca_pt.mondrian.xml' if args.schema_file is None else args.schema_file
-    cube_key = 'voicemail_retrievals_uniques' if args.cube is None else args.cube
+        schema_file = 'steelwheels.mondrian.xml' if args.schema_file is None else args.schema_file
+        cube_key = 'orderfact' if args.cube is None else args.cube
 
-    parsed_file = MondrianFileParser(schema_file)
+        parsed_file = MondrianFileParser(schema_file)
 
-    print(cube_key)
-    print(parsed_file.build_select_statement_for_cube(cube_key))
+        print(parsed_file.build_select_statement_for_cube(cube_key))
         
-    # except Exception as e:
-    #     exc_type, exc_obj, exc_tb = sys.exc_info()
-    #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    #     print(e, exc_type, fname, exc_tb.tb_lineno)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(e, exc_type, fname, exc_tb.tb_lineno)
 
 
 
