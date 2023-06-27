@@ -257,7 +257,7 @@ class MondrianFileParser(object):
 
 def main():   
     parser = argparse.ArgumentParser(
-        epilog='Example command: python mondian_doc_gen.py --schema_file "steelwheels.mondrian.xml" --output_dir "output/" --templates_dir "templates_html/" ')
+        epilog='Example command: python sql_builder.py --schema_file "steelwheels.mondrian.xml" --cube "SteelWheelsSales" ')
     parser.add_argument('--schema_file', '-s', type=str,
                         help='The path for the input schema file that will be parsed', required=False)
     parser.add_argument('--cube', '-c', type=str,
@@ -268,7 +268,7 @@ def main():
         print(args)
 
         schema_file = 'steelwheels.mondrian.xml' if args.schema_file is None else args.schema_file
-        cube_key = 'orderfact' if args.cube is None else args.cube
+        cube_key = 'SteelWheelsSales' if args.cube is None else args.cube
 
         parsed_file = MondrianFileParser(schema_file)
 
