@@ -130,10 +130,13 @@ class CalculatedMeasure(object):
     formula = ''
     is_visible = True
 
+class InvalidCubeNameException(KeyError):
+    pass
+
 class MondrianFileParser(object):
     __mondrian_file_path = ''
-    __dimensions_dict: dict[str, Dimension] = {}
-    __cubes_dict: dict[str, Cube] = {}
+    dimensions: dict[str, Dimension] = {}
+    cubes: dict[str, Cube] = {}
 
     def __init__(self, mondrian_file_path):
         self.__mondrian_file_path = mondrian_file_path
@@ -161,7 +164,7 @@ class MondrianFileParser(object):
                 dim_level.is_visible = lvl_element.get('visible', 'true') == 'true'
                 dim.add_level(dim_level)
 
-            self.__dimensions_dict[dim.id] = dim
+            self.dimensions[dim.id] = dim
             
 
     def __parse_degenerated_dimensions(self, schema_document):
@@ -186,7 +189,7 @@ class MondrianFileParser(object):
                 dim_level.column = lvl_element.get('column', '')
                 dim.add_level(dim_level)
 
-            self.__dimensions_dict[dim.id] = dim
+            self.dimensions[dim.id] = dim
 
     def __parse_cubes(self, schema_document):
         for cube_element in sorted(schema_document.xpath("/Schema/Cube"), key=lambda x: x.get('caption') if x.get('caption', '') != '' else x.get('name')):
@@ -206,7 +209,7 @@ class MondrianFileParser(object):
                 dim_usage.description = dim_usage_element.get('description', '')
                 dim_usage.foreign_key = dim_usage_element.get('foreignKey', '')
 
-                dim_usage.dimension = self.__dimensions_dict[dim_usage.source]
+                dim_usage.dimension = self.dimensions[dim_usage.source]
                 cube.add_dimension_usage(dim_usage)
 
             for dim_deg in cube_element.iter("Dimension"):
@@ -216,7 +219,7 @@ class MondrianFileParser(object):
                 dim_usage.caption = dim_deg.get('caption', '')
                 dim_usage.source = cube.table + '.' + dim_deg.get('name')
                 dim_usage.description = dim_deg.get('description', '')
-                dim_usage.dimension = self.__dimensions_dict[dim_usage.source]
+                dim_usage.dimension = self.dimensions[dim_usage.source]
                 cube.add_dimension_usage(dim_usage)
 
             for measure_element in cube_element.iter("Measure"):
@@ -238,7 +241,7 @@ class MondrianFileParser(object):
                 calculated_measure.caption = c_measure_element.get('caption', '')
                 calculated_measure.description = c_measure_element.get('description', '')
 
-            self.__cubes_dict[cube.id.lower()] = cube
+            self.cubes[cube.id.lower()] = cube
 
     def parse_file(self):
         file_path = Path(self.__mondrian_file_path)
@@ -252,7 +255,10 @@ class MondrianFileParser(object):
         self.__parse_cubes(document)
 
     def build_select_statement_for_cube(self, cube_name: str):
-        return self.__cubes_dict[cube_name.lower()].build_sql_select()
+        if cube_name in self.cubes:
+            return self.cubes[cube_name.lower()].build_sql_select()
+        else:
+            raise InvalidCubeNameException('Cube name provided not found within the provided schema file.')
 
 
 def main():   
@@ -274,6 +280,17 @@ def main():
 
         print(parsed_file.build_select_statement_for_cube(cube_key))
         
+    except InvalidCubeNameException as e:
+        error_message = 'Invalid cube name provided, these are the cube names that were found in the provided schema file:\n'
+        cube_names = []
+        for key in parsed_file.cubes:
+            cube_names.append("{} (table: {})".format(parsed_file.cubes[key].id.lower(), parsed_file.cubes[key].table_full_name.lower()))
+
+        cube_names.sort()
+        error_message += "\n".join(cube_names)
+
+        print(error_message)
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
